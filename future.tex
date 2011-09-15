@@ -1,0 +1,242 @@
+\documentclass[5p,authoryear]{elsarticle}
+
+\usepackage{aas_macros}
+
+\newcommand{\Ncore}{N_{\textnormal{core}}}
+\newcommand{\Msun}{M_{\odot}}
+\newcommand{\TRR}{T_{\textnormal{RR}}}
+\newcommand{\Torb}{T_{\textnormal{orb}}}
+\newcommand{\TNR}{T_{\textnormal{NR}}}
+
+\newcommand{\fixme}[1]{\emph{FIXME: #1}}
+
+\begin{document}
+
+\title{Millions of Bodies, Millions of Cores: the Future of
+  Collisional $N$-Body Simulations}
+
+\author[WMF]{Will M. Farr\corref{cor1}}
+\ead{w-farr@northwestern.edu}
+\author[MF]{Michiko Fujii}
+\author[YF]{Yoko Funato}
+\author[EG]{Evghenii Gaburov}
+\author[DH]{Douglas Heggie}
+\author[PH]{Piet Hut}
+\author[MI]{Masaki Iwasawa}
+\author[JM]{Jun Makino}
+\author[SM]{Steve McMillan}
+\author[TM]{Takayuki Muranushi}
+\author[KN]{Koichi Nakamura}
+\author[KN]{Keigo Nitadori}
+\author[SZ]{Simon Portegies Zwart}
+\author[AT]{Ataru Tanikawa}
+\author[AW]{Alfred Whitehead}
+
+\cortext[cor1]{Corresponding author}
+
+\address[WMF]{Northwestern Center for Interdisciplinary Research in
+  Astrophysics, 2145 Sheridan Rd., Evanston IL 60208 USA}
+
+\address[PH]{Institute
+  for Advanced Study, Princeton, NJ 08540, USA}
+
+\address[JM]{Interactive Research Center of Science, Graduate
+  School of Science and Engineering Tokyo Institute of Technology,
+  2--12--1 Ookayama, Meguro, Tokyo 152-8551, Japan}
+
+\begin{abstract}
+  We discuss the future of collisional $N$-body simulations on
+  massively-parallel computers.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Collision-less: ``particles'' are actually tracers.  Do not want them
+to have the possibility to collide or interact too strongly.
+
+Collisional: interested in two-body relaxation, also three-body and
+binary interactions around core-collapse, and physical collisions (not
+original meaning, but implied by collisional: enhanced by triple
+formation and also gravitational focusing).
+
+\begin{itemize}
+\item Astrophysics case: what can be done with direct dynamics, that
+  cannot be achieved via other means (MC, FP integrations, etc)?  
+  \begin{itemize}
+  \item Analyize unusual, small-$N$ populations (requires coupled
+    stellar evolution); particularly when they are (partially)
+    dynamically decoupled (i.e. Spitzer-unstable SMBH's).
+  \item Many-body events (may be important in core-collapse).
+  \item Tidal deformations/tails: adds a timescale (potential
+    variation).
+  \item With stellar-evolution, have another timescale in the problem:
+    SE, orbit, tidal, and cluster evolution; so cannot scale up from
+    $N < N_{\textnormal{physical}}$.
+  \item IMBH.  Adds more timescales: orbital timescale, growth
+    timescale (rate of repopulating loss cone).
+  \end{itemize}
+\item Current practice: only a few (NBODY6, Kira, Gorilla) codes,
+  small-scale distributed, GPU, or GRAPE parallelism ($N \gg \Ncore$).
+\item Description of upcoming supercomputers (extrapolate to 5 years).
+  $\Ncore \sim N$.  
+
+  GRAPE 6:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10^4}{10^5} = 0.1.
+  \end{equation}
+  GRAPE 4:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10^4}{3 \times 10^4} \sim 0.3.
+  \end{equation}
+  GPU:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10^3}{10^4} \sim 0.1.
+  \end{equation}
+  Cray \citep{Nitadori2006}:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{4 \times 10^4}{1.6 \times 10^4} \sim 3.
+  \end{equation}
+  K Computer:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{4 \times 10^6}{10^6} \sim 4.
+  \end{equation}
+  Exa-speed:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10^8}{10^{6-7}} \sim 10 \textnormal{
+      to } 100.
+  \end{equation}
+  '85 vector:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10}{1000} \sim 0.01
+  \end{equation}
+  '90 vector:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{10}{10^4} \sim 10^{-3}
+  \end{equation}
+  '60's--'70's:
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{1}{100} \sim 0.01
+  \end{equation}
+  1960's \citet{vonHoerner1960,vonHoerner1963}
+  \begin{equation}
+    \frac{\Ncore}{N} \sim \frac{1}{10} \sim 0.1
+  \end{equation}
+  
+\item Time for a new code structure: we are forced to use both hybrid
+  algorithms and hybrid hardware (see \citet{Hut1988}).
+  \begin{itemize}
+  \item Adjust or combine algorithms to take advantage of new
+    hardware.
+  \item Modernize the codebase: ease integration with other codes (stellar evolution,
+    collision hydro, etc).  Mention AMUSE.
+  \end{itemize}
+\end{itemize}
+
+\section{Prior Art}
+
+This section:
+\begin{itemize}
+\item Reviews previous work.
+\item Focuses on parts of algorithms/code that will have to change or
+  are inadequate for the future.  We want to make the strong case that
+  we need something \emph{new}, not a small change or extension of
+  older codes.
+\end{itemize}
+
+\subsection{Scalar Machines}
+\begin{itemize}
+\item The NBODY$i$ series.
+\item Starlab.
+\end{itemize}
+
+\subsection{Vector Machines}
+
+\fixme{Steve, could you add references here?}
+
+\subsection{GPU/GRAPE}
+\begin{itemize}
+\item Specialized hardware, still in $\Ncore < N$ regime.
+\item Architectural choices that can inform work on future hardware
+  (communication architecture, bottlenecks, etc).
+\item \fixme{Anyone know about simulations on more esoteric hardware,
+    like CM?} \citet{Makino1989}
+\end{itemize}
+
+\subsection{Parallel Codes}
+
+Spurzem, NBODY6++.  Also Keigo, NINJA.
+
+\subsection{Hybrid/Non-Direct Codes}
+\begin{itemize}
+\item The Bridge code.
+\item Treecodes in general, also for non-collisional systems.
+  \begin{itemize}
+  \item Can hybrid codes be used for purely \emph{collisional}
+    dynamics, or do they change the statistics of long-range
+    interaction (i.e.\ particle noise)?
+  \end{itemize}
+\end{itemize}
+
+\section{Challenges for the Future}
+
+\begin{itemize}
+\item Cost to core collapse $\sim N^3$.
+\item Computational power $\sim \Ncore$.
+\item Moving toward regime where $\Ncore \sim N$, need new algorithms,
+  codes.
+\item Eventually, will need to figure out how to make $\Ncore \gg N$
+  work (even $\omega$ Cen has $M \sim 5 \times 10^7 \Msun$; $\Ncore$
+  should exceed this in \fixme{XX} years).
+\item Astrophysical limits to collisionality: if $T_{\textnormal{cc}}
+  > T_H$, then don't need collisional simulation.  This happens about
+  $N \sim 10^{7-8}$.
+\item Problems with hardware and cache: hardware hybridization headache.
+\end{itemize}
+
+\section{Astrophysical Requirements}
+
+\subsection{Globular/Open Clusters}
+
+\subsection{Galactic Center}
+
+\subsection{Planet Formation}
+
+\section{Hardware Requirements}
+
+\subsection{Cache/Memory Hardware}
+
+\subsection{Cluster Hardware}
+
+\section{Software}
+
+These should probably expand to a section each.
+
+\begin{itemize}
+\item ``Direct:'' storage $\sim N$, step cost $\sim N^2$.  Replicate
+  state across processes, each processor does one particle update,
+  broadcast.
+\item ``Hybrid:'' tree for long-range, direct for short range.  How do
+  we take advantage of so many processors?  Is the tree force accurate
+  enough?  What about RR?
+  \begin{equation}
+    \TRR \sim \sqrt{N} \Torb < \TNR \sim \frac{N}{\ln \Lambda} \Torb
+  \end{equation}
+  
+  Also current work from Piet, Jun, others.
+\item ``Hierarchical:'' Jun?
+\end{itemize}
+
+\subsection{The Promise of High-Level Languages}
+
+Cite Koichi: HL can be faster.
+
+\section{Conclusion}
+
+\section*{Acknowledgements}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{future}
+
+\end{document}
