@@ -1,0 +1,4 @@
+This document is an attempt to understand and describe what will be
+required for collisional N-body simulations in a five-year timeframe,
+when the number of bodies and the number of processing units used in
+each simulation will exceed 10^6.
